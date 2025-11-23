@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Store - Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" class="login-container">
+        <h2>🛍️ Web Store Login</h2>
+        <div id="loginMessage"></div>
+        <form id="loginForm">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="loginUsername" required>
+                <small style="color: #6c757d;">Default: admin / advanced / user</small>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="loginPassword" required>
+                <small style="color: #6c757d;">All passwords: admin123 / advanced123 / user123</small>
+            </div>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div id="mainApp" class="container hidden">
+        <div class="header">
+            <div>
+                <h1>🛍️ Web Store Dashboard</h1>
+            </div>
+            <div class="user-info">
+                <div class="username" id="displayUsername"></div>
+                <div class="role" id="displayRole"></div>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('products')">Products</button>
+            <button class="tab" onclick="showTab('search')">Advanced Search</button>
+            <button class="tab" onclick="showTab('orders')">Orders</button>
+            <button class="tab" onclick="showTab('cart')">Cart <span id="cartBadge" class="cart-badge hidden">0</span></button>
+            <button class="tab" onclick="showTab('reports')" id="reportsTab">Reports</button>
+            <button class="tab" onclick="showTab('users')" id="usersTab">Users</button>
+        </div>
+
+        <div class="content">
+            <div id="messageContainer"></div>
+
+            <!-- Products Tab -->
+            <div id="products" class="tab-content active">
+                <h2>Products Catalog</h2>
+                <button class="btn-small" onclick="showAddProductModal()">+ Add New Product</button>
+                <div id="productsGrid" class="products-grid"></div>
+            </div>
+
+            <!-- Advanced Search Tab -->
+            <div id="search" class="tab-content">
+                <h2>Advanced Product Search</h2>
+                <div class="filters">
+                    <div class="filters-grid">
+                        <div class="form-group">
+                            <label>Gender</label>
+                            <select id="searchGender">
+                                <option value="">All</option>
+                                <option value="Men">Men</option>
+                                <option value="Women">Women</option>
+                                <option value="Children">Children</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Category</label>
+                            <select id="searchCategory"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Brand</label>
+                            <select id="searchBrand"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Min Price</label>
+                            <input type="number" id="searchMinPrice" placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Max Price</label>
+                            <input type="number" id="searchMaxPrice" placeholder="1000">
+                        </div>
+                        <div class="form-group">
+                            <label>Availability</label>
+                            <select id="searchAvailability">
+                                <option value="">All</option>
+                                <option value="in_stock">In Stock</option>
+                                <option value="out_of_stock">Out of Stock</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button onclick="performSearch()" style="margin-top: 15px;">Search Products</button>
+                </div>
+                <div id="searchResults" class="products-grid"></div>
+            </div>
+
+            <!-- Orders Tab -->
+            <div id="orders" class="tab-content">
+                <h2>Orders Management</h2>
+                <button class="btn-small" onclick="loadOrders()">🔄 Refresh Orders</button>
+                <div id="ordersContent"></div>
+            </div>
+
+            <!-- Cart Tab -->
+            <div id="cart" class="tab-content">
+                <h2>Shopping Cart</h2>
+                <div id="cartContent"></div>
+            </div>
+
+            <!-- Reports Tab -->
+            <div id="reports" class="tab-content">
+                <h2>Reports & Analytics</h2>
+                <div class="stats-grid" id="statsGrid"></div>
+                <div id="reportsContent"></div>
+            </div>
+
+            <!-- Users Tab -->
+            <div id="users" class="tab-content">
+                <h2>User Management</h2>
+                <button class="btn-small" onclick="loadUsers()">🔄 Refresh Users</button>
+                <div id="usersContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Product Modal -->
+    <div id="addProductModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New Product</h2>
+                <button class="modal-close" onclick="closeModal('addProductModal')">&times;</button>
+            </div>
+            <form id="addProductForm">
+                <div class="form-group">
+                    <label>Product Name *</label>
+                    <input type="text" id="productName" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="productDescription" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Price *</label>
+                    <input type="number" step="0.01" id="productPrice" required>
+                </div>
+                <div class="form-group">
+                    <label>Discount %</label>
+                    <input type="number" step="0.01" id="productDiscount" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Gender *</label>
+                    <select id="productGender" required>
+                        <option value="Men">Men</option>
+                        <option value="Women">Women</option>
+                        <option value="Children">Children</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Initial Quantity *</label>
+                    <input type="number" id="productQuantity" required>
+                </div>
+                <div class="form-group">
+                    <label>Category *</label>
+                    <select id="productCategory" required></select>
+                </div>
+                <div class="form-group">
+                    <label>Brand *</label>
+                    <select id="productBrand" required></select>
+                </div>
+                <button type="submit">Add Product</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
