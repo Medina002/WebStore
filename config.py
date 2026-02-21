@@ -1,11 +1,21 @@
 import os
-from dotenv import load_dotenv
-
-load_dotenv()
 
 class Config:
-    SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key')
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
+    # Database credentials
+    DB_USER = os.getenv("DB_USER", "admin")
+    DB_PASSWORD = os.getenv("DB_PASSWORD", "admin123")
+    DB_NAME = os.getenv("DB_NAME", "webshop")
+    DB_HOST = os.getenv("DB_HOST", "localhost")
+    DB_PORT = os.getenv("DB_PORT", "5433")
+
+    # SQLAlchemy settings
+    SQLALCHEMY_DATABASE_URI = (
+        f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+    )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'jwt-secret-key')
-    JWT_ACCESS_TOKEN_EXPIRES = 3600  # 1 hour
+
+
+# Ensure the config is used if running directly (optional)
+if __name__ == "__main__":
+    cfg = Config()
+    print("Database URI:", cfg.SQLALCHEMY_DATABASE_URI)
