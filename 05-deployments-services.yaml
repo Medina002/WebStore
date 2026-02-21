@@ -1,0 +1,173 @@
+# =====================
+# DEVELOPMENT (1 replica)
+# =====================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webshop-api
+  namespace: development
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: webshop-api
+  template:
+    metadata:
+      labels:
+        app: webshop-api
+    spec:
+      containers:
+        - name: webshop-api
+          image: medina22/webshop-api:latest
+          ports:
+            - containerPort: 5000
+          envFrom:
+            - configMapRef:
+                name: webshop-config
+            - secretRef:
+                name: webshop-secret
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webshop-api-service
+  namespace: development
+spec:
+  selector:
+    app: webshop-api
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 5000
+      nodePort: 30083
+---
+# =====================
+# STAGING (3 replicas)
+# =====================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webshop-api
+  namespace: staging
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: webshop-api
+  template:
+    metadata:
+      labels:
+        app: webshop-api
+    spec:
+      containers:
+        - name: webshop-api
+          image: medina22/webshop-api:latest
+          ports:
+            - containerPort: 5000
+          envFrom:
+            - configMapRef:
+                name: webshop-config
+            - secretRef:
+                name: webshop-secret
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 5000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webshop-api-service
+  namespace: staging
+spec:
+  selector:
+    app: webshop-api
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 5000
+      nodePort: 30081
+---
+# =====================
+# PRODUCTION (3 replicas)
+# =====================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webshop-api
+  namespace: production
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: webshop-api
+  template:
+    metadata:
+      labels:
+        app: webshop-api
+    spec:
+      containers:
+        - name: webshop-api
+          image: medina22/webshop-api:latest
+          ports:
+            - containerPort: 5000
+          envFrom:
+            - configMapRef:
+                name: webshop-config
+            - secretRef:
+                name: webshop-secret
+          resources:
+            requests:
+              cpu: "300m"
+              memory: "256Mi"
+            limits:
+              cpu: "1"
+              memory: "512Mi"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 5000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webshop-api-service
+  namespace: production
+spec:
+  selector:
+    app: webshop-api
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 5000
+      nodePort: 30082

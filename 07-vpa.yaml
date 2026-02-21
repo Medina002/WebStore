@@ -1,0 +1,49 @@
+# =====================
+# STAGING VPA (recommendation mode)
+# =====================
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: webshop-api-vpa
+  namespace: staging
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: webshop-api
+  updatePolicy:
+    updateMode: "Off"  # Recommendation mode only - does not modify pods
+  resourcePolicy:
+    containerPolicies:
+      - containerName: webshop-api
+        minAllowed:
+          cpu: "100m"
+          memory: "128Mi"
+        maxAllowed:
+          cpu: "1"
+          memory: "1Gi"
+---
+# =====================
+# PRODUCTION VPA (recommendation mode)
+# =====================
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: webshop-api-vpa
+  namespace: production
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: webshop-api
+  updatePolicy:
+    updateMode: "Off"  # Recommendation mode only - does not modify pods
+  resourcePolicy:
+    containerPolicies:
+      - containerName: webshop-api
+        minAllowed:
+          cpu: "200m"
+          memory: "256Mi"
+        maxAllowed:
+          cpu: "2"
+          memory: "2Gi"

@@ -1,0 +1,37 @@
+# Development - limited to 1 CPU
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: dev-quota
+  namespace: development
+spec:
+  hard:
+    requests.cpu: "500m"
+    limits.cpu: "1"
+    requests.memory: "512Mi"
+    limits.memory: "1Gi"
+    pods: "5"
+---
+# Staging - double of dev
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: staging-quota
+  namespace: staging
+spec:
+  hard:
+    requests.cpu: "1"
+    limits.cpu: "2"
+    requests.memory: "1Gi"
+    limits.memory: "2Gi"
+    pods: "20"
+---
+# Production - no CPU/memory limits
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: production-quota
+  namespace: production
+spec:
+  hard:
+    pods: "50"
